@@ -1,0 +1,4 @@
+interface:
+  display_name: "orchestrating-multi-model-work"
+  short_description: "协调已批准阶段的多模型研究、实现与独立复验"
+  default_prompt: "Use $orchestrating-multi-model-work to coordinate this already-approved phase under its frozen contract; do not start or redefine the product."

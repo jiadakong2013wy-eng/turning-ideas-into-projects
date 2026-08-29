@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "superpowers": {
+    "repository": "https://github.com/obra/superpowers.git",
+    "version": "6.3.0",
+    "tag": "v6.3.0",
+    "tag_object": "86babb696875227929e85420f287d6309374b93f",
+    "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+    "tree_sha256": "8a19ef6c059ce0b23e258f15d92ba882c6a14b069d14a3c1961e1549aec398f2",
+    "license": "MIT",
+    "license_file": "third_party/licenses/superpowers-MIT.txt"
+  },
+  "leader": {
+    "repository": "https://github.com/KKKKhazix/khazix-skills.git",
+    "path": "leader",
+    "commit": "7a5c4934be4106ac740ffdb95280bb81b3f4b83c",
+    "tree_sha256": "26d387352bf3ac8749a79f960843b5a59acbb0cfb832546a907ca5e687318790",
+    "license": "MIT",
+    "license_file": "third_party/licenses/khazix-skills-MIT.txt"
+  }
+}

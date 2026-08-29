@@ -1,0 +1,33 @@
+{
+  "name": "mingkon-idea-to-project",
+  "version": "0.2.0+codex.20260829164733",
+  "description": "Turn vague ideas into governed product roadmaps, bounded goals, multi-model phase coordination, and independent review.",
+  "author": {
+    "name": "Mingkon"
+  },
+  "repository": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git",
+  "keywords": [
+    "brainstorming",
+    "product-planning",
+    "goal",
+    "roadmap",
+    "governance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "turning-ideas-into-projects",
+    "shortDescription": "从模糊想法到路线图、执行与独立复验",
+    "longDescription": "把模糊产品想法澄清为有证据门槛的近中远路线图，只启动当前阶段的原生目标，并用独立 reviewer 防止偏离。",
+    "developerName": "Mingkon",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use this plugin to turn my vague idea into a governed project and one verified execution cycle."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

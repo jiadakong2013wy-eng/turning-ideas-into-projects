@@ -1,0 +1,33 @@
+{
+  "name": "mingkon-skills",
+  "interface": {
+    "displayName": "Mingkon Skills"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "source": {
+        "source": "local",
+        "path": "./plugins/superpowers"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "mingkon-idea-to-project",
+      "source": {
+        "source": "local",
+        "path": "./plugins/mingkon-idea-to-project"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+
