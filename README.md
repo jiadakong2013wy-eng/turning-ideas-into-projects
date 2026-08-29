@@ -11,7 +11,7 @@ Requirements: Git, PowerShell, and a Codex version that supports Plugins and nat
 ```powershell
 git clone https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git
 Set-Location .\turning-ideas-into-projects
-pwsh -NoProfile -File .\scripts\install.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
 After installation, restart Codex and create a new task.
@@ -58,7 +58,7 @@ Deep Research starts only when the approved phase explicitly requires a cited ex
 
 ```powershell
 git pull --ff-only
-pwsh -NoProfile -File .\scripts\install.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
 Restart Codex and use a new task after updating.
