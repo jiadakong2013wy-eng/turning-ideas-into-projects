@@ -1,11 +1,13 @@
 {
   "name": "mingkon-idea-to-project",
-  "version": "0.2.0+codex.20260829164733",
+  "version": "0.2.0+codex.20260829220023",
   "description": "Turn vague ideas into governed product roadmaps, bounded goals, multi-model phase coordination, and independent review.",
   "author": {
     "name": "Mingkon"
   },
+  "homepage": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme",
   "repository": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git",
+  "license": "MIT",
   "keywords": [
     "brainstorming",
     "product-planning",
@@ -16,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "turning-ideas-into-projects",
-    "shortDescription": "从模糊想法到路线图、执行与独立复验",
-    "longDescription": "把模糊产品想法澄清为有证据门槛的近中远路线图，只启动当前阶段的原生目标，并用独立 reviewer 防止偏离。",
+    "shortDescription": "先判断值不值得做，再规划、执行和独立复验",
+    "longDescription": "输入 /turning-ideas-into-projects 加上你的想法。系统先澄清问题，给出 GO、PIVOT、HOLD 或 STOP，再只规划并执行你批准的当前阶段。需要外部证据、多模型协作或独立复审时，会在开始前说明原因和模型分工；你可以更换或禁用模型。",
     "developerName": "Mingkon",
     "category": "Productivity",
     "capabilities": [
@@ -25,8 +27,11 @@
       "Read",
       "Write"
     ],
+    "websiteURL": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme",
     "defaultPrompt": [
-      "Use this plugin to turn my vague idea into a governed project and one verified execution cycle."
+      "从我的模糊想法开始，先判断是否值得做，不要直接编码。",
+      "评估这个想法，给出 GO、PIVOT、HOLD 或 STOP，并说明依据。",
+      "按已批准阶段执行，开始前说明研究、计划、编码和复审的模型分工。"
     ],
     "brandColor": "#2563EB"
   }

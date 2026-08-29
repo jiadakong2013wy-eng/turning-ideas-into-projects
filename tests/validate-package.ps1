@@ -65,6 +65,12 @@ if ($mingkonManifest) {
     Assert-True ($mingkonManifest.version -match '^0\.2\.0\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.2.0 local build.'
     Assert-True ($mingkonManifest.skills -eq './skills/') 'Mingkon plugin must expose ./skills/.'
     Assert-True ($mingkonManifest.interface.displayName -eq 'turning-ideas-into-projects') 'Plugin display name must match the slash-menu search command.'
+    Assert-True ($mingkonManifest.homepage -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin homepage must open the public usage guide.'
+    Assert-True ($mingkonManifest.interface.websiteURL -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin details must expose the public usage guide.'
+    Assert-True ($mingkonManifest.interface.longDescription.Contains('/turning-ideas-into-projects')) 'Plugin details must explain how to start.'
+    Assert-True ($mingkonManifest.interface.longDescription.Contains('GO、PIVOT、HOLD 或 STOP')) 'Plugin details must explain the decision flow.'
+    Assert-True ($mingkonManifest.interface.longDescription.Contains('更换或禁用模型')) 'Plugin details must explain model choice.'
+    Assert-True (@($mingkonManifest.interface.defaultPrompt).Count -eq 3) 'Plugin details must expose three starter prompts.'
 }
 if (Test-Path -LiteralPath $installerPath -PathType Leaf) {
     $installer = Get-Content -LiteralPath $installerPath -Raw
