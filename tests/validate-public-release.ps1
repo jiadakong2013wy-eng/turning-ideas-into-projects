@@ -1,10 +1,23 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$publicUrl = 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git'
+$publicRepoUrl = 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects'
+$publicGitUrl = "$publicRepoUrl.git"
 $failures = [System.Collections.Generic.List[string]]::new()
 
-foreach ($required in @('README.md', 'LICENSE', '.agents\plugins\marketplace.json', 'scripts\install.ps1')) {
+foreach ($required in @(
+    'README.md',
+    'LICENSE',
+    '.agents\plugins\marketplace.json',
+    '.claude-plugin\marketplace.json',
+    'scripts\install.ps1',
+    'scripts\build-platform-packages.ps1',
+    'release\SHA256SUMS.txt',
+    'release\turning-ideas-into-projects-codex-0.3.0.zip',
+    'release\turning-ideas-into-projects-claude-code-0.3.0.zip',
+    'release\turning-ideas-into-projects-workbuddy-0.3.0.zip',
+    'release\turning-ideas-into-projects-uniclaw-0.3.0.zip'
+)) {
     if (-not (Test-Path -LiteralPath (Join-Path $repoRoot $required) -PathType Leaf)) {
         $failures.Add("Missing public release file: $required")
     }
@@ -13,12 +26,12 @@ foreach ($required in @('README.md', 'LICENSE', '.agents\plugins\marketplace.jso
 $manifestPath = Join-Path $repoRoot 'plugins\mingkon-idea-to-project\.codex-plugin\plugin.json'
 if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-    if ($manifest.repository -ne $publicUrl) {
+    if ($manifest.repository -ne $publicRepoUrl) {
         $failures.Add("Plugin repository URL is not public GitHub: $($manifest.repository)")
     }
 }
 
-$allowedTopLevel = @('.agents', '.git', '.gitignore', 'LICENSE', 'README.md', 'plugins', 'scripts', 'tests', 'third_party')
+$allowedTopLevel = @('.agents', '.claude-plugin', '.git', '.gitignore', 'LICENSE', 'README.md', 'docs', 'platforms', 'plugins', 'release', 'scripts', 'tests', 'third_party')
 foreach ($item in Get-ChildItem -Force -LiteralPath $repoRoot) {
     if ($item.Name -notin $allowedTopLevel) {
         $failures.Add("Unexpected public top-level item: $($item.Name)")
@@ -71,7 +84,7 @@ if ((Test-Path -LiteralPath $installer -PathType Leaf) -and (Test-Path -LiteralP
         }
         else {
             $commands = Get-Content -LiteralPath $env:MINGKON_FAKE_CODEX_LOG -Raw
-            $expectedAdd = "plugin marketplace add $publicUrl --ref main"
+            $expectedAdd = "plugin marketplace add $publicGitUrl --ref main"
             if ($commands -notmatch [regex]::Escape($expectedAdd)) {
                 $failures.Add('Public installer default did not use the GitHub repository.')
             }
