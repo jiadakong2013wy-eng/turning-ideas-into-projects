@@ -1,68 +1,51 @@
 # Turning Ideas into Projects
 
-Turn a vague idea into a scoped, testable project task before coding begins.
+把一个还没想清楚的想法，逐步变成方向明确、范围受控、可以验证的项目任务。
 
-The workflow first checks whether the idea is worth doing, clarifies the user and value, plans only the approved phase, executes within a frozen scope, and finishes with independent technical review.
+它不会一上来就写代码，而是先判断值不值得做、应该怎么做，再只执行当前已经批准的阶段。
 
-## Install
+## 从 GitHub 安装
 
-Requirements: Git, PowerShell, and a Codex version that supports Plugins and native goals.
+请按自己使用的软件选择对应说明：
 
-```powershell
-git clone https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git
-Set-Location .\turning-ideas-into-projects
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
-```
+| 软件 | 安装方式 | 详细步骤 |
+|---|---|---|
+| Codex | GitHub 插件市场或 Codex ZIP | [Codex 安装说明](docs/install-codex.md) |
+| Claude Code | 直接添加 GitHub 插件市场 | [Claude Code 安装说明](docs/install-claude-code.md) |
+| 腾讯 WorkBuddy | 从 GitHub Release 下载 WorkBuddy ZIP 后导入 | [WorkBuddy 安装说明](docs/install-workbuddy.md) |
+| 中国联通 UniClaw | 从 GitHub Release 下载 UniClaw ZIP 后导入 | [UniClaw 安装说明](docs/install-uniclaw.md) |
 
-After installation, restart Codex and create a new task.
+不要把一个平台的 ZIP 导入另一个平台。四份包使用同一套工作流，但安装结构不同。
 
-## Use
+## 怎么用
 
-Enter this in a new Codex task:
-
-```text
-/turning-ideas-into-projects your idea
-```
-
-Example:
+从模糊想法开始：
 
 ```text
-/turning-ideas-into-projects I want to build a tool that helps teachers prepare lessons faster. First decide whether it is worth building; do not start coding yet.
+turning-ideas-into-projects 我想做一个帮助老师快速备课的工具，先判断有没有必要做，不要直接编码。
 ```
 
-The workflow will:
+如果当前阶段已经批准，而且范围、允许修改的文件和验收方法都已明确，可以单独使用：
 
-1. Clarify the problem, user, value, and alternatives.
-2. Recommend `GO`, `PIVOT`, `HOLD`, or `STOP`.
-3. Plan near-, mid-, and long-term outcomes without starting all of them.
-4. Freeze and execute only the approved current phase.
-5. Recheck the result in a fresh reviewer context.
-6. Report evidence, remaining risks, and the next action.
-
-## Multi-model work
-
-When a frozen phase needs external research, model-specialized work, long-running child tasks, or independent review, Codex will explain the proposed model routing before it starts. You can replace or disable a model when the required evidence and review independence remain valid.
-
-Default routing:
-
-| Work | Default |
-|---|---|
-| Multi-source external evidence | Deep Research |
-| Research review, architecture, and independent technical review | Sol |
-| Phase planning and coordination | Terra |
-| Scoped coding and focused tests | Luna |
-
-Deep Research starts only when the approved phase explicitly requires a cited external evidence package. It does not start for simple explanations, local-only checks, or a complete horizontal-vertical research report.
-
-## Update
-
-```powershell
-git pull --ff-only
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
+```text
+orchestrating-multi-model-work 按当前已经批准的范围执行，开始前告诉我模型分工。
 ```
 
-Restart Codex and use a new task after updating.
+在支持斜杠命令的软件里，从 `/` 菜单选择对应名称即可。
 
-## License
+## 它会怎么推进
 
-This project is released under the MIT License. Bundled third-party notices and licenses are under `third_party/`.
+1. 澄清问题、用户和价值。
+2. 给出继续、调整、暂缓或停止的判断。
+3. 只规划你批准的当前阶段。
+4. 需要多模型协作时，先告诉你原因和模型分工。
+5. 执行编码和验证。
+6. 使用没有参与实现的新上下文独立复审，再把结果和风险告诉你。
+
+默认分工是：Deep Research 收集外部证据，Sol 做研究复核和独立复审，Terra 负责计划协调，Luna 负责编码。你可以指定、更换或禁用模型。
+
+如果软件不能证明实际模型、研究任务或独立复审已经运行，它会明确停止或要求外部交接，不会假装完成。
+
+## 下载与校验
+
+发布包在 [GitHub Releases](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases)。下载后可以用同一版本的 `SHA256SUMS.txt` 核对文件是否完整。

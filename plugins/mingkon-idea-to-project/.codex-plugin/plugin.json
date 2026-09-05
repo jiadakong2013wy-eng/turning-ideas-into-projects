@@ -1,12 +1,12 @@
 {
   "name": "mingkon-idea-to-project",
-  "version": "0.2.0+codex.20260829220023",
+  "version": "0.3.0+codex.20260905181805",
   "description": "Turn vague ideas into governed product roadmaps, bounded goals, multi-model phase coordination, and independent review.",
   "author": {
     "name": "Mingkon"
   },
   "homepage": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme",
-  "repository": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git",
+  "repository": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects",
   "license": "MIT",
   "keywords": [
     "brainstorming",
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "turning-ideas-into-projects",
-    "shortDescription": "先判断值不值得做，再规划、执行和独立复验",
-    "longDescription": "输入 /turning-ideas-into-projects 加上你的想法。系统先澄清问题，给出 GO、PIVOT、HOLD 或 STOP，再只规划并执行你批准的当前阶段。需要外部证据、多模型协作或独立复审时，会在开始前说明原因和模型分工；你可以更换或禁用模型。",
+    "shortDescription": "\u5148\u5224\u65ad\u503c\u4e0d\u503c\u5f97\u505a\uff0c\u518d\u89c4\u5212\u3001\u6267\u884c\u548c\u72ec\u7acb\u590d\u9a8c",
+    "longDescription": "\u8f93\u5165 /turning-ideas-into-projects \u52a0\u4e0a\u4f60\u7684\u60f3\u6cd5\u3002\u7cfb\u7edf\u5148\u6f84\u6e05\u95ee\u9898\uff0c\u7ed9\u51fa GO\u3001PIVOT\u3001HOLD \u6216 STOP\uff0c\u518d\u53ea\u89c4\u5212\u5e76\u6267\u884c\u4f60\u6279\u51c6\u7684\u5f53\u524d\u9636\u6bb5\u3002\u9700\u8981\u5916\u90e8\u8bc1\u636e\u3001\u591a\u6a21\u578b\u534f\u4f5c\u6216\u72ec\u7acb\u590d\u5ba1\u65f6\uff0c\u4f1a\u5728\u5f00\u59cb\u524d\u8bf4\u660e\u539f\u56e0\u548c\u6a21\u578b\u5206\u5de5\uff1b\u4f60\u53ef\u4ee5\u66f4\u6362\u6216\u7981\u7528\u6a21\u578b\u3002",
     "developerName": "Mingkon",
     "category": "Productivity",
     "capabilities": [
@@ -29,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme",
     "defaultPrompt": [
-      "从我的模糊想法开始，先判断是否值得做，不要直接编码。",
-      "评估这个想法，给出 GO、PIVOT、HOLD 或 STOP，并说明依据。",
-      "按已批准阶段执行，开始前说明研究、计划、编码和复审的模型分工。"
+      "\u4ece\u6211\u7684\u6a21\u7cca\u60f3\u6cd5\u5f00\u59cb\uff0c\u5148\u5224\u65ad\u662f\u5426\u503c\u5f97\u505a\uff0c\u4e0d\u8981\u76f4\u63a5\u7f16\u7801\u3002",
+      "\u8bc4\u4f30\u8fd9\u4e2a\u60f3\u6cd5\uff0c\u7ed9\u51fa GO\u3001PIVOT\u3001HOLD \u6216 STOP\uff0c\u5e76\u8bf4\u660e\u4f9d\u636e\u3002",
+      "\u6309\u5df2\u6279\u51c6\u9636\u6bb5\u6267\u884c\uff0c\u5f00\u59cb\u524d\u8bf4\u660e\u7814\u7a76\u3001\u8ba1\u5212\u3001\u7f16\u7801\u548c\u590d\u5ba1\u7684\u6a21\u578b\u5206\u5de5\u3002"
     ],
     "brandColor": "#2563EB"
   }

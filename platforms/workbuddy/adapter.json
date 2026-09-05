@@ -1,0 +1,21 @@
+{
+  "platform": "workbuddy",
+  "version": "0.3.0",
+  "skillRoot": "skills",
+  "namespace": "flat",
+  "defaultDescriptionZh": "Superpowers 工作流：{name}。触发条件见 description。",
+  "descriptions": {
+    "turning-ideas-into-projects": {
+      "zh": "把模糊想法推进为有边界、有证据、可验收的项目阶段。",
+      "en": "Use when a vague product idea needs governed discovery, phased execution, and independent review."
+    },
+    "orchestrating-multi-model-work": {
+      "zh": "协调已批准阶段的研究、模型分工、子任务回执与独立复审。",
+      "en": "Use when an approved phase needs traceable research, model-specialized work, or independent review."
+    },
+    "leader": {
+      "zh": "把一句话想法整理成代理可以独立执行和验收的目标任务书。",
+      "en": "Use when a vague request must become a bounded, testable execution brief for an agent."
+    }
+  }
+}

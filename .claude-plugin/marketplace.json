@@ -1,0 +1,27 @@
+{
+  "name": "mingkon-skills",
+  "description": "Turning Ideas into Projects and its pinned workflow dependency for Claude Code.",
+  "owner": {
+    "name": "Mingkon"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "description": "Pinned planning, TDD, debugging, and delivery workflows.",
+      "version": "6.3.0",
+      "source": "./plugins/superpowers",
+      "author": {
+        "name": "Jesse Vincent"
+      }
+    },
+    {
+      "name": "turning-ideas-into-projects",
+      "description": "Turn vague ideas into governed phases, bounded execution, and independent review.",
+      "version": "0.3.0",
+      "source": "./plugins/mingkon-idea-to-project",
+      "author": {
+        "name": "Mingkon"
+      }
+    }
+  ]
+}

@@ -62,10 +62,11 @@ if ($marketplace) {
 
 if ($mingkonManifest) {
     Assert-True ($mingkonManifest.name -eq 'mingkon-idea-to-project') 'Mingkon plugin name mismatch.'
-    Assert-True ($mingkonManifest.version -match '^0\.2\.0\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.2.0 local build.'
+    Assert-True ($mingkonManifest.version -match '^0\.3\.0\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.3.0 local build.'
     Assert-True ($mingkonManifest.skills -eq './skills/') 'Mingkon plugin must expose ./skills/.'
     Assert-True ($mingkonManifest.interface.displayName -eq 'turning-ideas-into-projects') 'Plugin display name must match the slash-menu search command.'
     Assert-True ($mingkonManifest.homepage -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin homepage must open the public usage guide.'
+    Assert-True ($mingkonManifest.repository -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects') 'Plugin repository must point to the public GitHub source.'
     Assert-True ($mingkonManifest.interface.websiteURL -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin details must expose the public usage guide.'
     Assert-True ($mingkonManifest.interface.longDescription.Contains('/turning-ideas-into-projects')) 'Plugin details must explain how to start.'
     Assert-True ($mingkonManifest.interface.longDescription.Contains('GO、PIVOT、HOLD 或 STOP')) 'Plugin details must explain the decision flow.'
@@ -74,7 +75,8 @@ if ($mingkonManifest) {
 }
 if (Test-Path -LiteralPath $installerPath -PathType Leaf) {
     $installer = Get-Content -LiteralPath $installerPath -Raw
-    Assert-True ($installer.Contains('Installed: Superpowers and Turning Ideas into Projects.')) 'Installer output must use the public display names.'
+    Assert-True ($installer.Contains('turning-ideas-into-projects 0.3.0')) 'Installer output must report the public plugin name and version 0.3.0.'
+    Assert-True ($installer.Contains('https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git')) 'Installer must default to the public GitHub repository.'
 }
 
 if ($superpowersManifest) {
