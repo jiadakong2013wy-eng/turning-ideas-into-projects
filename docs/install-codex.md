@@ -16,7 +16,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\install.ps1
 
 ## 方法二：Codex Desktop
 
-1. 从 [GitHub Releases](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases) 下载 `turning-ideas-into-projects-codex-0.3.0.zip`。
+1. 从 [GitHub Releases](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases) 下载 `turning-ideas-into-projects-codex-0.3.1.zip`。
 2. 解压 ZIP，在 Codex Desktop 中打开解压后的目录。
 3. 打开“插件”，找到 `Mingkon Skills`。
 4. 安装 `Superpowers` 和界面上显示为 `turning-ideas-into-projects` 的插件。

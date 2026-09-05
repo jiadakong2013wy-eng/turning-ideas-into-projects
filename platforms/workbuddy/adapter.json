@@ -1,6 +1,6 @@
 {
   "platform": "workbuddy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "skillRoot": "skills",
   "namespace": "flat",
   "defaultDescriptionZh": "Superpowers 工作流：{name}。触发条件见 description。",

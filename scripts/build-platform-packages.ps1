@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.3.0',
+    [string]$Version = '0.3.1',
     [string]$OutputDirectory
 )
 
@@ -77,7 +77,8 @@ function Convert-GeneratedSkills {
         [string]$SkillsRoot,
         [ValidateSet('claude-code','workbuddy','uniclaw')][string]$Platform,
         [pscustomobject]$Adapter,
-        [System.Collections.Generic.HashSet[string]]$SuperpowersNames
+        [System.Collections.Generic.HashSet[string]]$SuperpowersNames,
+        [bool]$AddDirective = $true
     )
     $skillFiles = Get-ChildItem -LiteralPath $SkillsRoot -Recurse -File -Filter 'SKILL.md'
     foreach ($file in $skillFiles) {
@@ -90,7 +91,7 @@ function Convert-GeneratedSkills {
         }
 
         $name = Get-FrontmatterValue $text 'name'
-        if ($name -in @('turning-ideas-into-projects','orchestrating-multi-model-work')) {
+        if ($AddDirective -and $name -in @('turning-ideas-into-projects','orchestrating-multi-model-work')) {
             $text = Add-PlatformDirective $text
         }
 
@@ -202,26 +203,52 @@ try {
     Copy-ReleaseDocs 'claude-code' $claudeStage
     New-DeterministicZip $claudeStage (Join-Path $releaseRoot "turning-ideas-into-projects-claude-code-$Version.zip")
 
-    foreach ($platform in @('workbuddy','uniclaw')) {
-        $adapterPath = Join-Path $repoRoot "platforms/$platform/adapter.json"
-        $adapter = [System.IO.File]::ReadAllText($adapterPath, $utf8NoBom) | ConvertFrom-Json
-        $flatStage = Join-Path $stageRoot $platform
-        $flatSkills = Join-Path $flatStage 'skills'
-        Copy-DirectoryContents (Join-Path $repoRoot 'plugins/superpowers/skills') $flatSkills
-        Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills') -Directory | ForEach-Object {
-            Copy-Item -LiteralPath $_.FullName -Destination $flatSkills -Recurse -Force
-        }
-        Add-AdapterReference $flatSkills (Join-Path $repoRoot "platforms/$platform/platform-adapter.md")
-        Convert-GeneratedSkills $flatSkills $platform $adapter $superpowersNames
-        Copy-ReleaseDocs $platform $flatStage
-        New-DeterministicZip $flatStage (Join-Path $releaseRoot "turning-ideas-into-projects-$platform-$Version.zip")
+    $workBuddyAdapterPath = Join-Path $repoRoot 'platforms/workbuddy/adapter.json'
+    $workBuddyAdapter = [System.IO.File]::ReadAllText($workBuddyAdapterPath, $utf8NoBom) | ConvertFrom-Json
+    $workBuddyStage = Join-Path $stageRoot 'workbuddy'
+    $workBuddySkills = Join-Path $workBuddyStage 'skills'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/superpowers/skills') $workBuddySkills
+    Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills') -Directory | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $workBuddySkills -Recurse -Force
     }
+    Add-AdapterReference $workBuddySkills (Join-Path $repoRoot 'platforms/workbuddy/platform-adapter.md')
+    Convert-GeneratedSkills $workBuddySkills 'workbuddy' $workBuddyAdapter $superpowersNames
+    Copy-ReleaseDocs 'workbuddy' $workBuddyStage
+    New-DeterministicZip $workBuddyStage (Join-Path $releaseRoot "turning-ideas-into-projects-workbuddy-$Version.zip")
+
+    $uniClawAdapterPath = Join-Path $repoRoot 'platforms/uniclaw/adapter.json'
+    $uniClawAdapter = [System.IO.File]::ReadAllText($uniClawAdapterPath, $utf8NoBom) | ConvertFrom-Json
+    $uniClawPlatformAdapterPath = Join-Path $repoRoot 'platforms/uniclaw/platform-adapter.md'
+
+    $uniClawMainStage = Join-Path $stageRoot 'uniclaw-main'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects') $uniClawMainStage
+    New-Item -ItemType Directory -Path (Join-Path $uniClawMainStage 'references') -Force | Out-Null
+    Copy-Item -LiteralPath $uniClawPlatformAdapterPath -Destination (Join-Path $uniClawMainStage 'references/platform-adapter.md') -Force
+    Convert-GeneratedSkills $uniClawMainStage 'uniclaw' $uniClawAdapter $superpowersNames
+
+    $bundledSkills = Join-Path $uniClawMainStage 'references/bundled-skills'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/superpowers/skills') $bundledSkills
+    foreach ($skillName in @('leader','orchestrating-multi-model-work')) {
+        Copy-Item -LiteralPath (Join-Path $repoRoot "plugins/mingkon-idea-to-project/skills/$skillName") -Destination $bundledSkills -Recurse -Force
+    }
+    Convert-GeneratedSkills $bundledSkills 'uniclaw' $uniClawAdapter $superpowersNames $false
+    Copy-ReleaseDocs 'uniclaw' $uniClawMainStage
+    New-DeterministicZip $uniClawMainStage (Join-Path $releaseRoot "turning-ideas-into-projects-uniclaw-$Version.zip")
+
+    $uniClawChildStage = Join-Path $stageRoot 'uniclaw-child'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work') $uniClawChildStage
+    New-Item -ItemType Directory -Path (Join-Path $uniClawChildStage 'references') -Force | Out-Null
+    Copy-Item -LiteralPath $uniClawPlatformAdapterPath -Destination (Join-Path $uniClawChildStage 'references/platform-adapter.md') -Force
+    Convert-GeneratedSkills $uniClawChildStage 'uniclaw' $uniClawAdapter $superpowersNames
+    Copy-ReleaseDocs 'uniclaw' $uniClawChildStage
+    New-DeterministicZip $uniClawChildStage (Join-Path $releaseRoot "orchestrating-multi-model-work-uniclaw-$Version.zip")
 
     $checksumLines = foreach ($name in @(
         "turning-ideas-into-projects-codex-$Version.zip",
         "turning-ideas-into-projects-claude-code-$Version.zip",
         "turning-ideas-into-projects-workbuddy-$Version.zip",
-        "turning-ideas-into-projects-uniclaw-$Version.zip"
+        "turning-ideas-into-projects-uniclaw-$Version.zip",
+        "orchestrating-multi-model-work-uniclaw-$Version.zip"
     )) {
         $hash = (Get-FileHash -LiteralPath (Join-Path $releaseRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant()
         "$hash  $name"

@@ -1,6 +1,6 @@
 {
   "platform": "claude-code",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "skillRoot": "plugins/turning-ideas-into-projects/skills",
   "namespace": "turning-ideas-into-projects"
 }

@@ -13,9 +13,9 @@
 | Codex | GitHub 插件市场或 Codex ZIP | [Codex 安装说明](docs/install-codex.md) |
 | Claude Code | 直接添加 GitHub 插件市场 | [Claude Code 安装说明](docs/install-claude-code.md) |
 | 腾讯 WorkBuddy | 从 GitHub Release 下载 WorkBuddy ZIP 后导入 | [WorkBuddy 安装说明](docs/install-workbuddy.md) |
-| 中国联通 UniClaw | 从 GitHub Release 下载 UniClaw ZIP 后导入 | [UniClaw 安装说明](docs/install-uniclaw.md) |
+| 中国联通 UniClaw | 从 GitHub Release 下载两个 UniClaw ZIP，分别导入 | [UniClaw 安装说明](docs/install-uniclaw.md) |
 
-不要把一个平台的 ZIP 导入另一个平台。四份包使用同一套工作流，但安装结构不同。
+不要把一个平台的 ZIP 导入另一个平台。各平台包使用同一套工作流，但安装结构不同。
 
 ## 怎么用
 

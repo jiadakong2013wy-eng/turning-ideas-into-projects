@@ -2,8 +2,8 @@
 
 WorkBuddy 使用自己的 Skill ZIP，不能直接安装 Codex 或 Claude Code 的插件包。
 
-1. 打开 [GitHub v0.3.0 Release](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases/tag/v0.3.0)。
-2. 下载 `turning-ideas-into-projects-workbuddy-0.3.0.zip`。
+1. 打开 [GitHub v0.3.1 Release](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases/tag/v0.3.1)。
+2. 下载 `turning-ideas-into-projects-workbuddy-0.3.1.zip`。
 3. 在 WorkBuddy 打开“专家 · Skills · 连接器”中的“Skills”。
 4. 选择“添加 Skill”或“导入本地 Skill 包”，上传刚下载的 ZIP。
 5. 确认 `turning-ideas-into-projects` 和 `orchestrating-multi-model-work` 已启用。

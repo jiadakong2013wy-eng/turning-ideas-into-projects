@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$releaseVersion = '0.3.0'
+$releaseVersion = '0.3.1'
 $errors = [System.Collections.Generic.List[string]]::new()
 
 function Assert-True {
@@ -59,7 +59,7 @@ if ($claudeManifest) {
     Assert-True ($claudeManifest.version -eq $releaseVersion) 'Claude plugin version mismatch.'
 }
 if ($codexManifest) {
-    Assert-True ($codexManifest.version -match '^0\.3\.0\+codex\.\d{14}$') 'Codex source manifest must be a cache-busted 0.3.0 build.'
+    Assert-True ($codexManifest.version -match '^0\.3\.1\+codex\.\d{14}$') 'Codex source manifest must be a cache-busted 0.3.1 build.'
 }
 foreach ($adapter in @($workBuddyAdapter, $uniClawAdapter)) {
     if ($adapter) {
@@ -73,7 +73,8 @@ $artifactNames = @(
     "turning-ideas-into-projects-codex-$releaseVersion.zip",
     "turning-ideas-into-projects-claude-code-$releaseVersion.zip",
     "turning-ideas-into-projects-workbuddy-$releaseVersion.zip",
-    "turning-ideas-into-projects-uniclaw-$releaseVersion.zip"
+    "turning-ideas-into-projects-uniclaw-$releaseVersion.zip",
+    "orchestrating-multi-model-work-uniclaw-$releaseVersion.zip"
 )
 $checksumPath = Join-Path $repoRoot 'release/SHA256SUMS.txt'
 $checksumText = if (Test-Path -LiteralPath $checksumPath -PathType Leaf) { Get-Content -LiteralPath $checksumPath -Raw } else { '' }
@@ -131,17 +132,42 @@ if (Test-Path -LiteralPath $workBuddyZip -PathType Leaf) {
     Assert-True ($entries -contains 'skills/turning-ideas-into-projects/references/platform-adapter.md') 'WorkBuddy ZIP missing its lifecycle adapter reference.'
 }
 
-$uniClawZip = Join-Path $repoRoot "release/turning-ideas-into-projects-uniclaw-$releaseVersion.zip"
-if (Test-Path -LiteralPath $uniClawZip -PathType Leaf) {
-    $entries = Get-ZipEntryNames $uniClawZip
-    foreach ($skillName in @('turning-ideas-into-projects','orchestrating-multi-model-work','leader','brainstorming','writing-plans')) {
-        $entry = "skills/$skillName/SKILL.md"
-        Assert-True ($entries -contains $entry) "UniClaw ZIP missing: $entry"
-        $text = Get-ZipEntryText $uniClawZip $entry
-        Assert-True ($text -match '(?s)^---\s+name:\s*[a-z0-9-]+\s+description:') "UniClaw Skill $skillName must begin with standard name and description frontmatter."
-        Assert-True (-not ($text -and $text.Contains('mingkon-idea-to-project:'))) "UniClaw Skill $skillName leaks a Codex plugin namespace."
+$uniClawArchives = @(
+    @{
+        File = "turning-ideas-into-projects-uniclaw-$releaseVersion.zip"
+        Name = 'turning-ideas-into-projects'
+        Required = @(
+            'references/platform-adapter.md',
+            'references/bundled-skills/brainstorming/SKILL.md',
+            'references/bundled-skills/writing-plans/SKILL.md',
+            'references/bundled-skills/leader/SKILL.md',
+            'references/bundled-skills/orchestrating-multi-model-work/SKILL.md'
+        )
+    },
+    @{
+        File = "orchestrating-multi-model-work-uniclaw-$releaseVersion.zip"
+        Name = 'orchestrating-multi-model-work'
+        Required = @('references/platform-adapter.md','references/handoff-contract.md')
     }
-    Assert-True ($entries -contains 'skills/turning-ideas-into-projects/references/platform-adapter.md') 'UniClaw ZIP missing its lifecycle adapter reference.'
+)
+foreach ($expected in $uniClawArchives) {
+    $uniClawZip = Join-Path $repoRoot "release/$($expected.File)"
+    if (-not (Test-Path -LiteralPath $uniClawZip -PathType Leaf)) { continue }
+    $entries = Get-ZipEntryNames $uniClawZip
+    Assert-True ($entries -contains 'SKILL.md') "UniClaw ZIP must contain root SKILL.md: $($expected.File)"
+    Assert-True (-not ($entries | Where-Object { $_ -like 'skills/*' })) "UniClaw ZIP must not contain a sibling skills/ collection: $($expected.File)"
+    foreach ($required in $expected.Required) {
+        Assert-True ($entries -contains $required) "UniClaw ZIP missing $required`: $($expected.File)"
+    }
+    $adapterText = Get-ZipEntryText $uniClawZip 'references/platform-adapter.md'
+    Assert-True ($adapterText -and $adapterText.Contains('# China Unicom UniClaw platform mapping')) "UniClaw platform-adapter.md must contain Markdown guidance: $($expected.File)"
+    Assert-True ($adapterText -and $adapterText.Contains('model_actual')) "UniClaw platform adapter must preserve model observability guidance: $($expected.File)"
+    if ($expected.Name -eq 'turning-ideas-into-projects') {
+        Assert-True ($adapterText -and $adapterText.Contains('references/bundled-skills/<skill-name>/SKILL.md')) 'UniClaw lifecycle adapter must explain bundled workflow resolution.'
+    }
+    $text = Get-ZipEntryText $uniClawZip 'SKILL.md'
+    Assert-True ($text -match "(?m)^name:\s*$([regex]::Escape($expected.Name))\s*$") "UniClaw root Skill name mismatch: $($expected.File)"
+    Assert-True (-not ($text -and $text.Contains('mingkon-idea-to-project:'))) "UniClaw root Skill leaks a Codex plugin namespace: $($expected.File)"
 }
 
 if ($errors.Count -gt 0) {

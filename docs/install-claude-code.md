@@ -25,7 +25,7 @@ Claude Code 可以直接把 GitHub 仓库当作插件市场，不需要先下载
 
 ## ZIP 安装
 
-无法直接访问 GitHub 市场时，可从 [GitHub Releases](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases) 下载 `turning-ideas-into-projects-claude-code-0.3.0.zip`，解压后用本地路径添加市场：
+无法直接访问 GitHub 市场时，可从 [GitHub Releases](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases) 下载 `turning-ideas-into-projects-claude-code-0.3.1.zip`，解压后用本地路径添加市场：
 
 ```text
 /plugin marketplace add <解压目录的绝对路径>

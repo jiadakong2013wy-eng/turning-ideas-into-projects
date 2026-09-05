@@ -1,6 +1,7 @@
 {
   "platform": "uniclaw",
-  "version": "0.3.0",
-  "skillRoot": "skills",
-  "namespace": "flat"
+  "version": "0.3.1",
+  "skillRoot": ".",
+  "namespace": "flat",
+  "archiveMode": "one-skill-per-archive"
 }

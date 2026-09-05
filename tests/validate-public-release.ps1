@@ -13,10 +13,11 @@ foreach ($required in @(
     'scripts\install.ps1',
     'scripts\build-platform-packages.ps1',
     'release\SHA256SUMS.txt',
-    'release\turning-ideas-into-projects-codex-0.3.0.zip',
-    'release\turning-ideas-into-projects-claude-code-0.3.0.zip',
-    'release\turning-ideas-into-projects-workbuddy-0.3.0.zip',
-    'release\turning-ideas-into-projects-uniclaw-0.3.0.zip'
+    'release\turning-ideas-into-projects-codex-0.3.1.zip',
+    'release\turning-ideas-into-projects-claude-code-0.3.1.zip',
+    'release\turning-ideas-into-projects-workbuddy-0.3.1.zip',
+    'release\turning-ideas-into-projects-uniclaw-0.3.1.zip',
+    'release\orchestrating-multi-model-work-uniclaw-0.3.1.zip'
 )) {
     if (-not (Test-Path -LiteralPath (Join-Path $repoRoot $required) -PathType Leaf)) {
         $failures.Add("Missing public release file: $required")

@@ -62,7 +62,7 @@ if ($marketplace) {
 
 if ($mingkonManifest) {
     Assert-True ($mingkonManifest.name -eq 'mingkon-idea-to-project') 'Mingkon plugin name mismatch.'
-    Assert-True ($mingkonManifest.version -match '^0\.3\.0\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.3.0 local build.'
+    Assert-True ($mingkonManifest.version -match '^0\.3\.1\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.3.1 local build.'
     Assert-True ($mingkonManifest.skills -eq './skills/') 'Mingkon plugin must expose ./skills/.'
     Assert-True ($mingkonManifest.interface.displayName -eq 'turning-ideas-into-projects') 'Plugin display name must match the slash-menu search command.'
     Assert-True ($mingkonManifest.homepage -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin homepage must open the public usage guide.'
@@ -75,7 +75,7 @@ if ($mingkonManifest) {
 }
 if (Test-Path -LiteralPath $installerPath -PathType Leaf) {
     $installer = Get-Content -LiteralPath $installerPath -Raw
-    Assert-True ($installer.Contains('turning-ideas-into-projects 0.3.0')) 'Installer output must report the public plugin name and version 0.3.0.'
+    Assert-True ($installer.Contains('turning-ideas-into-projects 0.3.1')) 'Installer output must report the public plugin name and version 0.3.1.'
     Assert-True ($installer.Contains('https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git')) 'Installer must default to the public GitHub repository.'
 }
 

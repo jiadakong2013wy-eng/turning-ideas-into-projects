@@ -59,6 +59,6 @@ foreach ($plugin in $plugins) {
     }
 }
 
-Write-Output 'Installed: superpowers 6.3.0 and turning-ideas-into-projects 0.3.0 from mingkon-skills.'
+Write-Output 'Installed: superpowers 6.3.0 and turning-ideas-into-projects 0.3.1 from mingkon-skills.'
 Write-Output 'Open the slash menu and select turning-ideas-into-projects.'
 Write-Output 'Start a new Codex task before invoking the bundled skills.'
