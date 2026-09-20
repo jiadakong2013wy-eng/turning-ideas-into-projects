@@ -1,6 +1,7 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
+$releaseVersion = '0.4.0'
 $errors = [System.Collections.Generic.List[string]]::new()
 
 function Assert-True {
@@ -14,14 +15,23 @@ function Read-JsonFile {
         $script:errors.Add("Missing JSON file: $Path")
         return $null
     }
-    try { return Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json }
+    try { return Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json }
     catch { $script:errors.Add("Invalid JSON file: $Path - $($_.Exception.Message)"); return $null }
+}
+
+function Get-PortableRelativePath {
+    param([string]$BasePath, [string]$TargetPath)
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    $targetFull = [System.IO.Path]::GetFullPath($TargetPath)
+    $baseUri = [System.Uri]::new($baseFull)
+    $targetUri = [System.Uri]::new($targetFull)
+    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace('/', [System.IO.Path]::DirectorySeparatorChar)
 }
 
 function Get-TreeDigest {
     param([string]$Root)
     [string[]]$lines = @(Get-ChildItem -LiteralPath $Root -Recurse -File | ForEach-Object {
-        $relative = [System.IO.Path]::GetRelativePath($Root, $_.FullName).Replace([System.IO.Path]::DirectorySeparatorChar, '/')
+        $relative = (Get-PortableRelativePath $Root $_.FullName).Replace([System.IO.Path]::DirectorySeparatorChar, '/')
         Assert-True (-not $relative.Contains('\')) "Tree digest path was not normalized: $relative"
         $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         "$relative`0$hash"
@@ -62,7 +72,7 @@ if ($marketplace) {
 
 if ($mingkonManifest) {
     Assert-True ($mingkonManifest.name -eq 'mingkon-idea-to-project') 'Mingkon plugin name mismatch.'
-    Assert-True ($mingkonManifest.version -match '^0\.3\.1\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.3.1 local build.'
+    Assert-True ($mingkonManifest.version -match '^0\.4\.0\+codex\.\d{14}$') 'Mingkon plugin version must be a cache-busted 0.4.0 local build.'
     Assert-True ($mingkonManifest.skills -eq './skills/') 'Mingkon plugin must expose ./skills/.'
     Assert-True ($mingkonManifest.interface.displayName -eq 'turning-ideas-into-projects') 'Plugin display name must match the slash-menu search command.'
     Assert-True ($mingkonManifest.homepage -eq 'https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme') 'Plugin homepage must open the public usage guide.'
@@ -74,8 +84,8 @@ if ($mingkonManifest) {
     Assert-True (@($mingkonManifest.interface.defaultPrompt).Count -eq 3) 'Plugin details must expose three starter prompts.'
 }
 if (Test-Path -LiteralPath $installerPath -PathType Leaf) {
-    $installer = Get-Content -LiteralPath $installerPath -Raw
-    Assert-True ($installer.Contains('turning-ideas-into-projects 0.3.1')) 'Installer output must report the public plugin name and version 0.3.1.'
+    $installer = Get-Content -LiteralPath $installerPath -Raw -Encoding UTF8
+    Assert-True ($installer.Contains('turning-ideas-into-projects 0.4.0')) 'Installer output must report the public plugin name and version 0.4.0.'
     Assert-True ($installer.Contains('https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects.git')) 'Installer must default to the public GitHub repository.'
 }
 
@@ -87,6 +97,9 @@ if ($superpowersManifest) {
 $requiredFiles = @(
     'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/SKILL.md',
     'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/project-pack.md',
+    'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/existing-project-upgrade.md',
+    'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/stage-receipts.md',
+    'tests/validate-existing-project-lifecycle.ps1',
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/SKILL.md',
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/agents/openai.yaml',
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/references/handoff-contract.md',
@@ -103,10 +116,27 @@ foreach ($relative in $requiredFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot $relative) -PathType Leaf) "Missing required file: $relative"
 }
 
+$readmePath = Join-Path $repoRoot 'README.md'
+if (Test-Path -LiteralPath $readmePath -PathType Leaf) {
+    $readme = Get-Content -LiteralPath $readmePath -Raw -Encoding UTF8
+    foreach ($platformName in @('Codex', 'Claude Code', 'Claude Desktop', 'WorkBuddy', 'UniClaw')) {
+        Assert-True ($readme.Contains($platformName)) "README installation table missing host: $platformName"
+    }
+    foreach ($stage in @('定位', '理解', '定方向', '定计划', '定合同', '执行验证', '独立验收与下一步')) {
+        Assert-True ($readme.Contains($stage)) "README missing lifecycle stage: $stage"
+    }
+}
+
+$existingProjectLifecycleValidator = Join-Path $repoRoot 'tests/validate-existing-project-lifecycle.ps1'
+if (Test-Path -LiteralPath $existingProjectLifecycleValidator -PathType Leaf) {
+    & pwsh -NoProfile -File $existingProjectLifecycleValidator
+    Assert-True ($LASTEXITCODE -eq 0) 'Existing-project lifecycle validator failed.'
+}
+
 $orchestratorPath = Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/SKILL.md'
 $orchestratorUiPath = Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/agents/openai.yaml'
 if (Test-Path -LiteralPath $orchestratorPath -PathType Leaf) {
-    $orchestrator = Get-Content -LiteralPath $orchestratorPath -Raw
+    $orchestrator = Get-Content -LiteralPath $orchestratorPath -Raw -Encoding UTF8
     Assert-True ($orchestrator.Contains('immediate post-brainstorming handoff')) 'Orchestrator must reconcile brainstorming with writing-plans.'
     Assert-True ($orchestrator.Contains('must not use a generic `leader` installation')) 'Plugin mode must not mask a missing bundled leader.'
     Assert-True ($orchestrator.Contains('must not invoke package-external optional skills')) 'Qualified execution must not acquire optional Skill dependencies outside the package.'
@@ -114,7 +144,7 @@ if (Test-Path -LiteralPath $orchestratorPath -PathType Leaf) {
     Assert-True ($orchestrator.Contains('record the selected option as contract input')) 'Writing-plans execution choice must return to governed orchestration.'
 }
 if (Test-Path -LiteralPath $orchestratorUiPath -PathType Leaf) {
-    $orchestratorUi = Get-Content -LiteralPath $orchestratorUiPath -Raw
+    $orchestratorUi = Get-Content -LiteralPath $orchestratorUiPath -Raw -Encoding UTF8
     Assert-True ($orchestratorUi.Contains('display_name: "turning-ideas-into-projects"')) 'Skill slash-menu display name must match turning-ideas-into-projects.'
 }
 
@@ -122,7 +152,7 @@ $multiModelPath = Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/or
 $multiModelUiPath = Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/agents/openai.yaml'
 $receiptPath = Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/references/handoff-contract.md'
 if (Test-Path -LiteralPath $multiModelPath -PathType Leaf) {
-    $multiModel = Get-Content -LiteralPath $multiModelPath -Raw
+    $multiModel = Get-Content -LiteralPath $multiModelPath -Raw -Encoding UTF8
     foreach ($requiredPhrase in @(
         'approved phase',
         'frozen contract',
@@ -137,11 +167,11 @@ if (Test-Path -LiteralPath $multiModelPath -PathType Leaf) {
     }
 }
 if (Test-Path -LiteralPath $multiModelUiPath -PathType Leaf) {
-    $multiModelUi = Get-Content -LiteralPath $multiModelUiPath -Raw
+    $multiModelUi = Get-Content -LiteralPath $multiModelUiPath -Raw -Encoding UTF8
     Assert-True ($multiModelUi.Contains('display_name: "orchestrating-multi-model-work"')) 'Multi-model Skill slash-menu display name mismatch.'
 }
 if (Test-Path -LiteralPath $receiptPath -PathType Leaf) {
-    $receipt = Get-Content -LiteralPath $receiptPath -Raw
+    $receipt = Get-Content -LiteralPath $receiptPath -Raw -Encoding UTF8
     foreach ($field in @('task_id:', 'role:', 'model_requested:', 'model_actual:', 'contract_version:', 'status:', 'next_action:')) {
         Assert-True ($receipt.Contains($field)) "Receipt reference missing required field: $field"
     }
@@ -149,7 +179,7 @@ if (Test-Path -LiteralPath $receiptPath -PathType Leaf) {
 
 $runtimeSkillFiles = Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins') -Recurse -File -Filter 'SKILL.md'
 $qualifiedRefs = foreach ($file in $runtimeSkillFiles) {
-    $content = Get-Content -LiteralPath $file.FullName -Raw
+    $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
     foreach ($match in [regex]::Matches($content, '`(?<prefix>[a-z0-9-]+):(?<skill>[a-z0-9-]+)`', 'IgnoreCase')) {
         [pscustomobject]@{ Prefix = $match.Groups['prefix'].Value; Skill = $match.Groups['skill'].Value; File = $file.FullName }
     }
@@ -181,8 +211,15 @@ if ($lock) {
     Assert-True ($lock.leader.tree_sha256 -eq $leaderDigest) 'Vendored leader tree digest mismatch.'
 }
 
-$textFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -File | Where-Object {
+$trackedTextPaths = @(& git -C $repoRoot ls-files -- '*.md' '*.json' '*.yaml' '*.yml' '*.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Unable to enumerate tracked package files.'
+}
+$textFiles = $trackedTextPaths | ForEach-Object {
+    Get-Item -LiteralPath (Join-Path $repoRoot $_)
+} | Where-Object {
     $_.FullName -notmatch '[\\/]\.git[\\/]' -and
+    $_.FullName -notmatch '[\\/]\.superpowers[\\/]' -and
     $_.FullName -notmatch '[\\/]plugins[\\/]superpowers[\\/]' -and
     $_.FullName -ne $PSCommandPath -and
     $_.Extension -in @('.md', '.json', '.yaml', '.yml', '.ps1')

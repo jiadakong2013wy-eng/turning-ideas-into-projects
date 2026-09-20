@@ -1,0 +1,7 @@
+{
+  "platform": "claude-desktop",
+  "version": "0.4.0",
+  "skillRoot": "<skill-name>",
+  "namespace": "flat",
+  "archiveMode": "one-skill-folder-per-archive"
+}

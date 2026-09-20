@@ -1,10 +1,13 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.3.1',
+    [string]$Version = '0.4.0',
     [string]$OutputDirectory
 )
 
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($Version) -or $Version -notmatch '^[A-Za-z0-9](?:[A-Za-z0-9.+_-]*[A-Za-z0-9])?$' -or $Version.Contains('..')) {
+    throw 'Version must be filename-safe.'
+}
 $repoRoot = Split-Path -Parent $PSScriptRoot
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $repoRoot 'release' }
 $releaseRoot = [System.IO.Path]::GetFullPath($OutputDirectory)
@@ -75,13 +78,18 @@ function Add-PlatformDirective {
 function Convert-GeneratedSkills {
     param(
         [string]$SkillsRoot,
-        [ValidateSet('claude-code','workbuddy','uniclaw')][string]$Platform,
+        [ValidateSet('claude-code','workbuddy','uniclaw','claude-desktop')][string]$Platform,
         [pscustomobject]$Adapter,
         [System.Collections.Generic.HashSet[string]]$SuperpowersNames,
         [bool]$AddDirective = $true
     )
-    $skillFiles = Get-ChildItem -LiteralPath $SkillsRoot -Recurse -File -Filter 'SKILL.md'
-    foreach ($file in $skillFiles) {
+    $markdownFiles = if ($Platform -eq 'claude-desktop') {
+        Get-ChildItem -LiteralPath $SkillsRoot -Recurse -File -Filter '*.md'
+    }
+    else {
+        Get-ChildItem -LiteralPath $SkillsRoot -Recurse -File -Filter 'SKILL.md'
+    }
+    foreach ($file in $markdownFiles) {
         $text = [System.IO.File]::ReadAllText($file.FullName)
         if ($Platform -eq 'claude-code') {
             $text = $text.Replace('mingkon-idea-to-project:', 'turning-ideas-into-projects:')
@@ -90,26 +98,28 @@ function Convert-GeneratedSkills {
             $text = $text.Replace('mingkon-idea-to-project:', '').Replace('superpowers:', '')
         }
 
-        $name = Get-FrontmatterValue $text 'name'
-        if ($AddDirective -and $name -in @('turning-ideas-into-projects','orchestrating-multi-model-work')) {
-            $text = Add-PlatformDirective $text
-        }
-
-        if ($Platform -eq 'workbuddy') {
-            $description = Get-FrontmatterValue $text 'description'
-            $descriptionZh = if ($SuperpowersNames.Contains($name)) { ([string]$Adapter.defaultDescriptionZh).Replace('{name}', $name) } else { $description }
-            $descriptionEn = $description
-            $localized = $Adapter.descriptions.PSObject.Properties[$name]
-            if ($localized) {
-                $descriptionZh = [string]$localized.Value.zh
-                $descriptionEn = [string]$localized.Value.en
+        if ($file.Name -eq 'SKILL.md') {
+            $name = Get-FrontmatterValue $text 'name'
+            if ($AddDirective -and $name -in @('turning-ideas-into-projects','orchestrating-multi-model-work')) {
+                $text = Add-PlatformDirective $text
             }
-            $sourceVersion = if ($SuperpowersNames.Contains($name)) { '6.3.0' } else { $Version }
-            $author = if ($SuperpowersNames.Contains($name)) { 'Jesse Vincent' } else { 'Mingkon' }
-            $text = Set-FrontmatterField $text 'description_zh' $descriptionZh
-            $text = Set-FrontmatterField $text 'description_en' $descriptionEn
-            $text = Set-FrontmatterField $text 'version' $sourceVersion
-            $text = Set-FrontmatterField $text 'author' $author
+
+            if ($Platform -eq 'workbuddy') {
+                $description = Get-FrontmatterValue $text 'description'
+                $descriptionZh = if ($SuperpowersNames.Contains($name)) { ([string]$Adapter.defaultDescriptionZh).Replace('{name}', $name) } else { $description }
+                $descriptionEn = $description
+                $localized = $Adapter.descriptions.PSObject.Properties[$name]
+                if ($localized) {
+                    $descriptionZh = [string]$localized.Value.zh
+                    $descriptionEn = [string]$localized.Value.en
+                }
+                $sourceVersion = if ($SuperpowersNames.Contains($name)) { '6.3.0' } else { $Version }
+                $author = if ($SuperpowersNames.Contains($name)) { 'Jesse Vincent' } else { 'Mingkon' }
+                $text = Set-FrontmatterField $text 'description_zh' $descriptionZh
+                $text = Set-FrontmatterField $text 'description_en' $descriptionEn
+                $text = Set-FrontmatterField $text 'version' $sourceVersion
+                $text = Set-FrontmatterField $text 'author' $author
+            }
         }
         Write-Utf8NoBom $file.FullName $text
     }
@@ -129,8 +139,11 @@ function New-DeterministicZip {
     Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $destinationFull = [System.IO.Path]::GetFullPath($DestinationPath)
-    if (-not $destinationFull.StartsWith($script:releaseRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "ZIP target must stay inside release directory: $destinationFull"
+    $destinationParent = [System.IO.Path]::GetDirectoryName($destinationFull)
+    $normalizedParent = $destinationParent.TrimEnd('\', '/')
+    $normalizedOutputDirectory = $script:releaseRoot.TrimEnd('\', '/')
+    if (-not [string]::Equals($normalizedParent, $normalizedOutputDirectory, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "ZIP target must have output directory as its direct parent: $destinationFull"
     }
     if (Test-Path -LiteralPath $destinationFull -PathType Leaf) { Remove-Item -LiteralPath $destinationFull -Force }
     $fileStream = [System.IO.File]::Open($destinationFull, [System.IO.FileMode]::CreateNew)
@@ -243,18 +256,49 @@ try {
     Copy-ReleaseDocs 'uniclaw' $uniClawChildStage
     New-DeterministicZip $uniClawChildStage (Join-Path $releaseRoot "orchestrating-multi-model-work-uniclaw-$Version.zip")
 
+    $claudeDesktopAdapterPath = Join-Path $repoRoot 'platforms/claude-desktop/adapter.json'
+    $claudeDesktopAdapter = [System.IO.File]::ReadAllText($claudeDesktopAdapterPath, $utf8NoBom) | ConvertFrom-Json
+    $claudeDesktopPlatformAdapterPath = Join-Path $repoRoot 'platforms/claude-desktop/platform-adapter.md'
+
+    $claudeDesktopMainArchiveStage = Join-Path $stageRoot 'claude-desktop-main-archive'
+    $claudeDesktopMainStage = Join-Path $claudeDesktopMainArchiveStage 'turning-ideas-into-projects'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects') $claudeDesktopMainStage
+    New-Item -ItemType Directory -Path (Join-Path $claudeDesktopMainStage 'references') -Force | Out-Null
+    Copy-Item -LiteralPath $claudeDesktopPlatformAdapterPath -Destination (Join-Path $claudeDesktopMainStage 'references/platform-adapter.md') -Force
+    Convert-GeneratedSkills $claudeDesktopMainStage 'claude-desktop' $claudeDesktopAdapter $superpowersNames
+
+    $claudeDesktopBundledSkills = Join-Path $claudeDesktopMainStage 'references/bundled-skills'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/superpowers/skills') $claudeDesktopBundledSkills
+    foreach ($skillName in @('leader','orchestrating-multi-model-work')) {
+        Copy-Item -LiteralPath (Join-Path $repoRoot "plugins/mingkon-idea-to-project/skills/$skillName") -Destination $claudeDesktopBundledSkills -Recurse -Force
+    }
+    Convert-GeneratedSkills $claudeDesktopBundledSkills 'claude-desktop' $claudeDesktopAdapter $superpowersNames $false
+    Copy-ReleaseDocs 'claude-desktop' $claudeDesktopMainStage
+    New-DeterministicZip $claudeDesktopMainArchiveStage (Join-Path $releaseRoot "turning-ideas-into-projects-claude-desktop-$Version.zip")
+
+    $claudeDesktopChildArchiveStage = Join-Path $stageRoot 'claude-desktop-child-archive'
+    $claudeDesktopChildStage = Join-Path $claudeDesktopChildArchiveStage 'orchestrating-multi-model-work'
+    Copy-DirectoryContents (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work') $claudeDesktopChildStage
+    New-Item -ItemType Directory -Path (Join-Path $claudeDesktopChildStage 'references') -Force | Out-Null
+    Copy-Item -LiteralPath $claudeDesktopPlatformAdapterPath -Destination (Join-Path $claudeDesktopChildStage 'references/platform-adapter.md') -Force
+    Convert-GeneratedSkills $claudeDesktopChildStage 'claude-desktop' $claudeDesktopAdapter $superpowersNames
+    Copy-ReleaseDocs 'claude-desktop' $claudeDesktopChildStage
+    New-DeterministicZip $claudeDesktopChildArchiveStage (Join-Path $releaseRoot "orchestrating-multi-model-work-claude-desktop-$Version.zip")
+
     $checksumLines = foreach ($name in @(
         "turning-ideas-into-projects-codex-$Version.zip",
         "turning-ideas-into-projects-claude-code-$Version.zip",
         "turning-ideas-into-projects-workbuddy-$Version.zip",
         "turning-ideas-into-projects-uniclaw-$Version.zip",
-        "orchestrating-multi-model-work-uniclaw-$Version.zip"
+        "orchestrating-multi-model-work-uniclaw-$Version.zip",
+        "turning-ideas-into-projects-claude-desktop-$Version.zip",
+        "orchestrating-multi-model-work-claude-desktop-$Version.zip"
     )) {
         $hash = (Get-FileHash -LiteralPath (Join-Path $releaseRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant()
         "$hash  $name"
     }
     Write-Utf8NoBom (Join-Path $releaseRoot 'SHA256SUMS.txt') (($checksumLines -join "`n") + "`n")
-    Write-Output "Built four platform packages in $releaseRoot"
+    Write-Output "Built seven platform packages in $releaseRoot"
 }
 finally {
     $stageFull = [System.IO.Path]::GetFullPath($stageRoot)

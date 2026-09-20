@@ -1,9 +1,9 @@
 # 在中国联通元景 UniClaw 中安装
 
-1. 打开 [GitHub v0.3.1 Release](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases/tag/v0.3.1)。
+1. 打开 [GitHub v0.4.0 Release](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects/releases/tag/v0.4.0)。
 2. 下载下面两个 ZIP：
-   - `turning-ideas-into-projects-uniclaw-0.3.1.zip`
-   - `orchestrating-multi-model-work-uniclaw-0.3.1.zip`
+   - `turning-ideas-into-projects-uniclaw-0.4.0.zip`
+   - `orchestrating-multi-model-work-uniclaw-0.4.0.zip`
 3. 在 UniClaw 的“设置”或“技能（Skills）管理”中选择导入本地 Skill，依次导入两个 ZIP。
 4. 每个 ZIP 的根目录都直接包含 `SKILL.md`。不要再次打包，也不要先套一层文件夹。
 5. 导入后确认 `turning-ideas-into-projects` 和 `orchestrating-multi-model-work` 都可见。

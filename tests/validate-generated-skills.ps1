@@ -17,22 +17,34 @@ try {
         $targets.Add($_.FullName)
     }
 
-    $claudeZip = Join-Path $repoRoot 'release/turning-ideas-into-projects-claude-code-0.3.1.zip'
+    $claudeZip = Join-Path $repoRoot 'release/turning-ideas-into-projects-claude-code-0.4.0.zip'
     if (-not (Test-Path -LiteralPath $claudeZip -PathType Leaf)) { throw "Missing package: $claudeZip" }
     $claudeDestination = Join-Path $tempRoot 'claude-code'
     Expand-Archive -LiteralPath $claudeZip -DestinationPath $claudeDestination -Force
     Get-ChildItem -LiteralPath (Join-Path $claudeDestination 'plugins/turning-ideas-into-projects/skills') -Directory | ForEach-Object { $targets.Add($_.FullName) }
 
-    $uniClawMainZip = Join-Path $repoRoot 'release/turning-ideas-into-projects-uniclaw-0.3.1.zip'
+    $uniClawMainZip = Join-Path $repoRoot 'release/turning-ideas-into-projects-uniclaw-0.4.0.zip'
     $uniClawMainDestination = Join-Path $tempRoot 'uniclaw/turning-ideas-into-projects'
     Expand-Archive -LiteralPath $uniClawMainZip -DestinationPath $uniClawMainDestination -Force
     $targets.Add($uniClawMainDestination)
     Get-ChildItem -LiteralPath (Join-Path $uniClawMainDestination 'references/bundled-skills') -Directory | ForEach-Object { $targets.Add($_.FullName) }
 
-    $uniClawChildZip = Join-Path $repoRoot 'release/orchestrating-multi-model-work-uniclaw-0.3.1.zip'
+    $uniClawChildZip = Join-Path $repoRoot 'release/orchestrating-multi-model-work-uniclaw-0.4.0.zip'
     $uniClawChildDestination = Join-Path $tempRoot 'uniclaw/orchestrating-multi-model-work'
     Expand-Archive -LiteralPath $uniClawChildZip -DestinationPath $uniClawChildDestination -Force
     $targets.Add($uniClawChildDestination)
+
+    $claudeDesktopMainZip = Join-Path $repoRoot 'release/turning-ideas-into-projects-claude-desktop-0.4.0.zip'
+    $claudeDesktopMainDestination = Join-Path $tempRoot 'claude-desktop/turning-ideas-into-projects'
+    Expand-Archive -LiteralPath $claudeDesktopMainZip -DestinationPath $claudeDesktopMainDestination -Force
+    $claudeDesktopMainSkill = Join-Path $claudeDesktopMainDestination 'turning-ideas-into-projects'
+    $targets.Add($claudeDesktopMainSkill)
+    Get-ChildItem -LiteralPath (Join-Path $claudeDesktopMainSkill 'references/bundled-skills') -Directory | ForEach-Object { $targets.Add($_.FullName) }
+
+    $claudeDesktopChildZip = Join-Path $repoRoot 'release/orchestrating-multi-model-work-claude-desktop-0.4.0.zip'
+    $claudeDesktopChildDestination = Join-Path $tempRoot 'claude-desktop/orchestrating-multi-model-work'
+    Expand-Archive -LiteralPath $claudeDesktopChildZip -DestinationPath $claudeDesktopChildDestination -Force
+    $targets.Add((Join-Path $claudeDesktopChildDestination 'orchestrating-multi-model-work'))
 
     $failures = 0
     foreach ($target in $targets) {

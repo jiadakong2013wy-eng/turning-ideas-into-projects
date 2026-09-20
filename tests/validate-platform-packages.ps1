@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$releaseVersion = '0.3.1'
+$releaseVersion = '0.4.0'
 $errors = [System.Collections.Generic.List[string]]::new()
 
 function Assert-True {
@@ -15,7 +15,7 @@ function Read-JsonFile {
         $script:errors.Add("Missing JSON file: $Path")
         return $null
     }
-    try { return Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json }
+    try { return Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json }
     catch { $script:errors.Add("Invalid JSON file: $Path - $($_.Exception.Message)"); return $null }
 }
 
@@ -44,8 +44,10 @@ function Get-ZipEntryText {
 $claudeMarketplace = Read-JsonFile (Join-Path $repoRoot '.claude-plugin/marketplace.json')
 $claudeManifest = Read-JsonFile (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/.claude-plugin/plugin.json')
 $codexManifest = Read-JsonFile (Join-Path $repoRoot 'plugins/mingkon-idea-to-project/.codex-plugin/plugin.json')
+$claudeCodeAdapter = Read-JsonFile (Join-Path $repoRoot 'platforms/claude-code/adapter.json')
 $workBuddyAdapter = Read-JsonFile (Join-Path $repoRoot 'platforms/workbuddy/adapter.json')
 $uniClawAdapter = Read-JsonFile (Join-Path $repoRoot 'platforms/uniclaw/adapter.json')
+$claudeDesktopAdapter = Read-JsonFile (Join-Path $repoRoot 'platforms/claude-desktop/adapter.json')
 
 if ($claudeMarketplace) {
     Assert-True ($claudeMarketplace.name -eq 'mingkon-skills') 'Claude marketplace name must be mingkon-skills.'
@@ -59,9 +61,9 @@ if ($claudeManifest) {
     Assert-True ($claudeManifest.version -eq $releaseVersion) 'Claude plugin version mismatch.'
 }
 if ($codexManifest) {
-    Assert-True ($codexManifest.version -match '^0\.3\.1\+codex\.\d{14}$') 'Codex source manifest must be a cache-busted 0.3.1 build.'
+    Assert-True ($codexManifest.version -match '^0\.4\.0\+codex\.\d{14}$') 'Codex source manifest must be a cache-busted 0.4.0 build.'
 }
-foreach ($adapter in @($workBuddyAdapter, $uniClawAdapter)) {
+foreach ($adapter in @($claudeCodeAdapter, $workBuddyAdapter, $uniClawAdapter, $claudeDesktopAdapter)) {
     if ($adapter) {
         Assert-True ($adapter.version -eq $releaseVersion) 'Platform adapter version mismatch.'
         Assert-True (-not [string]::IsNullOrWhiteSpace($adapter.platform)) 'Platform adapter must name its host.'
@@ -74,10 +76,12 @@ $artifactNames = @(
     "turning-ideas-into-projects-claude-code-$releaseVersion.zip",
     "turning-ideas-into-projects-workbuddy-$releaseVersion.zip",
     "turning-ideas-into-projects-uniclaw-$releaseVersion.zip",
-    "orchestrating-multi-model-work-uniclaw-$releaseVersion.zip"
+    "orchestrating-multi-model-work-uniclaw-$releaseVersion.zip",
+    "turning-ideas-into-projects-claude-desktop-$releaseVersion.zip",
+    "orchestrating-multi-model-work-claude-desktop-$releaseVersion.zip"
 )
 $checksumPath = Join-Path $repoRoot 'release/SHA256SUMS.txt'
-$checksumText = if (Test-Path -LiteralPath $checksumPath -PathType Leaf) { Get-Content -LiteralPath $checksumPath -Raw } else { '' }
+$checksumText = if (Test-Path -LiteralPath $checksumPath -PathType Leaf) { Get-Content -LiteralPath $checksumPath -Raw -Encoding UTF8 } else { '' }
 Assert-True (-not [string]::IsNullOrWhiteSpace($checksumText)) 'Missing release/SHA256SUMS.txt.'
 
 foreach ($artifactName in $artifactNames) {
@@ -87,7 +91,7 @@ foreach ($artifactName in $artifactNames) {
         continue
     }
     $hash = (Get-FileHash -LiteralPath $artifactPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    Assert-True ($checksumText -match "(?m)^$hash  $([regex]::Escape($artifactName))$") "Checksum entry mismatch: $artifactName"
+    Assert-True ($checksumText -match "(?m)^$hash  $([regex]::Escape($artifactName))\r?$") "Checksum entry mismatch: $artifactName"
     $entries = Get-ZipEntryNames $artifactPath
     Assert-True ($entries.Count -gt 0) "ZIP is empty: $artifactName"
     Assert-True (-not ($entries | Where-Object { $_ -match '(^|/)\.git(/|$)' })) "ZIP contains .git data: $artifactName"
@@ -99,6 +103,9 @@ if (Test-Path -LiteralPath $codexZip -PathType Leaf) {
     $entries = Get-ZipEntryNames $codexZip
     foreach ($required in @('.agents/plugins/marketplace.json','plugins/superpowers/.codex-plugin/plugin.json','plugins/mingkon-idea-to-project/.codex-plugin/plugin.json','scripts/install.ps1')) {
         Assert-True ($entries -contains $required) "Codex ZIP missing: $required"
+    }
+    foreach ($required in @('plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/stage-receipts.md')) {
+        Assert-True ($entries -contains $required) "Codex lifecycle ZIP missing: $required"
     }
 }
 
@@ -115,6 +122,9 @@ if (Test-Path -LiteralPath $claudeZip -PathType Leaf) {
     Assert-True ($packagedPublicPlugin -and $packagedPublicPlugin.source -eq './plugins/turning-ideas-into-projects') 'Claude ZIP marketplace source must match its renamed public plugin directory.'
     Assert-True ($mainSkill -and $mainSkill.Contains('turning-ideas-into-projects:leader')) 'Claude generated Skill must use the public plugin namespace.'
     Assert-True (-not ($mainSkill -and $mainSkill.Contains('mingkon-idea-to-project:'))) 'Claude generated Skill leaks the internal Codex namespace.'
+    foreach ($required in @('plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/stage-receipts.md')) {
+        Assert-True ($entries -contains $required) "Claude lifecycle ZIP missing: $required"
+    }
 }
 
 $workBuddyZip = Join-Path $repoRoot "release/turning-ideas-into-projects-workbuddy-$releaseVersion.zip"
@@ -130,6 +140,9 @@ if (Test-Path -LiteralPath $workBuddyZip -PathType Leaf) {
         Assert-True (-not ($text -and $text.Contains('mingkon-idea-to-project:'))) "WorkBuddy Skill $skillName leaks a Codex plugin namespace."
     }
     Assert-True ($entries -contains 'skills/turning-ideas-into-projects/references/platform-adapter.md') 'WorkBuddy ZIP missing its lifecycle adapter reference.'
+    foreach ($required in @('skills/turning-ideas-into-projects/references/existing-project-upgrade.md','skills/turning-ideas-into-projects/references/stage-receipts.md')) {
+        Assert-True ($entries -contains $required) "WorkBuddy lifecycle ZIP missing: $required"
+    }
 }
 
 $uniClawArchives = @(
@@ -168,6 +181,27 @@ foreach ($expected in $uniClawArchives) {
     $text = Get-ZipEntryText $uniClawZip 'SKILL.md'
     Assert-True ($text -match "(?m)^name:\s*$([regex]::Escape($expected.Name))\s*$") "UniClaw root Skill name mismatch: $($expected.File)"
     Assert-True (-not ($text -and $text.Contains('mingkon-idea-to-project:'))) "UniClaw root Skill leaks a Codex plugin namespace: $($expected.File)"
+    if ($expected.Name -eq 'turning-ideas-into-projects') {
+        foreach ($required in @('references/existing-project-upgrade.md','references/stage-receipts.md')) {
+            Assert-True ($entries -contains $required) "UniClaw lifecycle ZIP missing: $required"
+        }
+    }
+}
+
+$claudeDesktopArchives = @(
+    @{ File = "turning-ideas-into-projects-claude-desktop-$releaseVersion.zip"; Name = 'turning-ideas-into-projects' },
+    @{ File = "orchestrating-multi-model-work-claude-desktop-$releaseVersion.zip"; Name = 'orchestrating-multi-model-work' }
+)
+foreach ($expected in $claudeDesktopArchives) {
+    $archivePath = Join-Path $repoRoot "release/$($expected.File)"
+    if (-not (Test-Path -LiteralPath $archivePath -PathType Leaf)) { continue }
+    $entries = Get-ZipEntryNames $archivePath
+    Assert-True ($entries -contains "$($expected.Name)/SKILL.md") "Claude Desktop ZIP missing SKILL.md: $($expected.File)"
+    if ($expected.Name -eq 'turning-ideas-into-projects') {
+        foreach ($required in @('references/existing-project-upgrade.md','references/stage-receipts.md')) {
+            Assert-True ($entries -contains "$($expected.Name)/$required") "Claude Desktop lifecycle ZIP missing: $required"
+        }
+    }
 }
 
 if ($errors.Count -gt 0) {

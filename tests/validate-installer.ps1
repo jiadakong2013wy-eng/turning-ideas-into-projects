@@ -9,8 +9,16 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 try {
     if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw "Installer missing: $installer" }
 
-    $missingOutput = & pwsh -NoProfile -File $installer -MarketplaceUrl 'ssh://example/repo.git' -CodexCommand (Join-Path $tempRoot 'missing-codex.exe') 2>&1
-    if ($LASTEXITCODE -eq 0) { throw 'Installer must fail when the Codex command is missing.' }
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $missingOutput = & pwsh -NoProfile -File $installer -MarketplaceUrl 'ssh://example/repo.git' -CodexCommand (Join-Path $tempRoot 'missing-codex.exe') 2>&1
+        $missingExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    if ($missingExitCode -eq 0) { throw 'Installer must fail when the Codex command is missing.' }
     if (($missingOutput -join "`n") -notmatch 'Codex CLI') { throw 'Missing-Codex failure must name the Codex CLI.' }
 
     $env:MINGKON_FAKE_CODEX_LOG = Join-Path $tempRoot 'first-install.log'

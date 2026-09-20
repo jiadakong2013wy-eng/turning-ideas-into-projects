@@ -1,4 +1,4 @@
 interface:
   display_name: "turning-ideas-into-projects"
-  short_description: "把模糊想法稳步推进到产品计划、持续开发与独立复验的全流程"
-  default_prompt: "Use $turning-ideas-into-projects to turn this vague idea into an approved product roadmap and one verified execution cycle."
+  short_description: "把模糊想法或已有项目升级稳步推进到计划、执行与独立复验"
+  default_prompt: "Use $turning-ideas-into-projects to govern this vague idea or an existing-project upgrade, selecting context without assuming access."
