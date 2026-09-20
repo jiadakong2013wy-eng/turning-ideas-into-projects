@@ -45,10 +45,15 @@ foreach ($item in Get-ChildItem -Force -LiteralPath $repoRoot) {
 $privatePatterns = @(
     ('58' + '\.251\.255\.19'),
     ('mk' + 'admin'),
-    ('01a' + '[0-9a-f-]{20,}'),
+    ('\b01a' + '[0-9a-f]{5}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b'),
     ('C:' + '\\Users\\'),
     ('D:' + '\\mingkonSKILL')
 )
+$sampleDigest = '188ce5410e8e3bac6b82c43901a3eb0e894105ad193f75087e295a8916e62351'
+$samplePrivateId = ('01a' + '00000-0000-0000-0000-000000000000')
+if ($sampleDigest -match $privatePatterns[2] -or $samplePrivateId -notmatch $privatePatterns[2]) {
+    throw 'Private task ID detection must reject UUIDs without rejecting SHA256 digests.'
+}
 $publicFiles = Get-ChildItem -Recurse -File -LiteralPath $repoRoot | Where-Object {
     $_.FullName -notlike (Join-Path $repoRoot '.git\*') -and
     $_.FullName -notlike (Join-Path $repoRoot 'plugins\superpowers\*') -and

@@ -1,7 +1,7 @@
-18c9e6bd8ac63b36593315d9a6a04ecbc9039d9cd4e9a7329c6f23305f11926d  turning-ideas-into-projects-codex-0.4.0.zip
-351cc1cf55205ddb28b59f3ed7ef98fb1a3c60cfbcd389985f305ba94477ee00  turning-ideas-into-projects-claude-code-0.4.0.zip
-c2b0517a23cadd094a5e9fdadb9e913cca5cd0799cbe0ca8ec565d2b5fdd74bc  turning-ideas-into-projects-workbuddy-0.4.0.zip
-d59c9edbd3dad067b867d457e1ab042db563a8d3c7b792b048f1d30219fa927c  turning-ideas-into-projects-uniclaw-0.4.0.zip
-92c17fde6663eb0f9f917de609f6b8512e951ff2c07a0ae101ef824841132300  orchestrating-multi-model-work-uniclaw-0.4.0.zip
-ccf87361626ac9dd28055692ba22d7ef1797b578e1a4f9e466879ce1701a803a  turning-ideas-into-projects-claude-desktop-0.4.0.zip
-8dc8f211fc9ef9cdb280572a085c829c4b01770fcc37f7c6724cfbd62810ad24  orchestrating-multi-model-work-claude-desktop-0.4.0.zip
+7b53be5d845460862ec5a9c3d088e5e7bdcf5512b0599819c8abe8b8c0506f26  turning-ideas-into-projects-codex-0.4.0.zip
+f808d6e92a219ff43e1876fea49410ce680a836ba1f07b7f595f92196f75fabd  turning-ideas-into-projects-claude-code-0.4.0.zip
+ecf7645b10d0818cb864211fc9212ef8888de6336afcce1ec2ea966c10ce247f  turning-ideas-into-projects-workbuddy-0.4.0.zip
+a8eabb6367acd58f41a6230e6b2accb37fa3fed036f817c98b3bd2315d11212a  turning-ideas-into-projects-uniclaw-0.4.0.zip
+e4b00298d18d958f2991c8c92f3ba6e0674b2fc8b7b873131b14582ec15de2cd  orchestrating-multi-model-work-uniclaw-0.4.0.zip
+188ce5410e8e3bac6b82c43901a3eb0e894105ad193f75087e295a8916e62351  turning-ideas-into-projects-claude-desktop-0.4.0.zip
+44c8ad581fdc041733eb409873e56d53dd47342623ea38b08c67ef76b2f8d86e  orchestrating-multi-model-work-claude-desktop-0.4.0.zip

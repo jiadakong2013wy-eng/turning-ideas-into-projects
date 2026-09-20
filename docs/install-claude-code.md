@@ -43,4 +43,6 @@ Claude Code 可以直接把 GitHub 仓库当作插件市场，不需要先下载
 /reload-plugins
 ```
 
-Claude Code 能创建普通子代理，不代表实际使用了 Terra、Luna 或 Sol。只有宿主能读出实际模型时，工作流才会把它记录为 `model_actual`。
+模型选择会按当前套餐推荐：Pro 默认 Opus 5 负责主线、研究和复审，Sonnet 5 负责编码；Fable 的额外 credits 需要明确同意。首次会提供四档选择，也可以逐角色指定模型。只有宿主能读出实际模型时，才会记录为 `model_actual`。
+
+完整用法见 [GitHub 使用说明](https://github.com/jiadakong2013wy-eng/turning-ideas-into-projects#readme)；ZIP 内也附有 `USAGE.md`。

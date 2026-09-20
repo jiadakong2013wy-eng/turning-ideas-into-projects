@@ -20,11 +20,11 @@ If the notice is the only missing condition, send it before dispatch; it informs
 
 ## Mainline and model record
 
-Register one mainline for the approved phase. Request Terra by default. If Terra is unavailable, select a host-available coordination model only within the contract and record the reason. Never report a requested model as actually running.
+Read [references/model-routing.md](references/model-routing.md) before proposing, dispatching, or changing a model route. Register one mainline for the approved phase. Use its capability-based selector and platform recommendation instead of applying one vendor's model names to every host. Never report a requested model as actually running.
 
-The role table contains defaults, not mandatory user choices. Before dispatch, apply an explicit user request to specify, replace, or disable a model when the requested capability is observed and the frozen contract's evidence and independence gates remain valid. If the request conflicts with either condition, report the exact conflict and return it to the parent for re-contracting; do not silently ignore the request, substitute another model, weaken a required independent review, or continue the affected dispatch.
+The role table and platform routes contain recommendations, not mandatory user choices. Before dispatch, offer `推荐适配`, `质量优先`, `省额度/速度优先`, and `自定义每个角色` under the reference's first-selection and saved-preference rules. Apply an explicit user request to specify, replace, or disable a model when the requested capability is observed and the frozen contract's evidence, cost, and independence gates remain valid. If the request conflicts with a gate, report the exact conflict and return it to the parent for re-contracting; do not silently ignore the request, substitute another model, spend extra credits, weaken a required independent review, or continue the affected dispatch.
 
-For every child and mainline receipt, record both `model_requested` and `model_actual`. Use the observed host identifier for `model_actual`; when it cannot be observed, write `unknown`. `unknown` is not proof of the requested model and cannot satisfy a model-specific gate.
+For every child and mainline receipt, record platform, subscription mode, route profile, selection source, extra-cost authorization, `model_requested`, and `model_actual`. Use the observed host identifier for `model_actual`; when it cannot be observed, write `unknown`. `unknown` is not proof of the requested model and cannot satisfy a model-specific gate.
 
 Read [references/handoff-contract.md](references/handoff-contract.md) before dispatching or accepting a child result.
 
@@ -33,10 +33,10 @@ Read [references/handoff-contract.md](references/handoff-contract.md) before dis
 | Need | Default owner | Required boundary |
 |---|---|---|
 | Multi-source external evidence | ChatGPT Deep Research | It reports sources and uncertainty only; it does not choose local adoption. |
-| Research contradiction, local fit, architecture | Sol | It separates paper/code/license/download/PoC evidence and returns HOLD when proof is insufficient. |
-| Approved-phase plan, contract input, coordination | Terra mainline | It may coordinate but cannot replace the parent lifecycle owner. |
-| Frozen, isolated coding and focused tests | Luna | It may change only its contract whitelist and cannot relax tests or accept itself. |
-| Technical acceptance | fresh Sol context | It must not be the implementation context and returns only `verified_pass`, `verified_fail`, or `blocked`. |
+| Research contradiction, local fit, architecture | platform-recommended evidence reviewer | It separates paper/code/license/download/PoC evidence and returns HOLD when proof is insufficient. |
+| Approved-phase plan, contract input, coordination | platform-recommended planner/mainline | It may coordinate but cannot replace the parent lifecycle owner. |
+| Frozen, isolated coding and focused tests | platform-recommended implementer | It may change only its contract whitelist and cannot relax tests or accept itself. |
+| Technical acceptance | fresh platform-recommended reviewer context | It must not be the implementation context and returns only `verified_pass`, `verified_fail`, or `blocked`. |
 
 These are defaults, not a claim that those capabilities exist. A requested model that is unavailable must have a recorded alternative or a fail-closed status.
 
@@ -46,11 +46,11 @@ Classify the frozen contract's research deliverable before any research dispatch
 
 | Contract deliverable | This Skill's route | Required result |
 |---|---|---|
-| `evidence_pack`: cited sources, conflicts, and uncertainty for a downstream decision or implementation | ChatGPT Deep Research is the sole external collector. | Return cited evidence only; Sol reviews credibility and local fit. |
+| `evidence_pack`: cited sources, conflicts, and uncertainty for a downstream decision or implementation | ChatGPT Deep Research, or the host-adapter-approved equivalent, is the sole external collector. | Return cited evidence only; the selected platform evidence reviewer checks credibility and local fit. |
 | `horizontal_vertical_report` or another end-to-end report that includes its own collection, analysis, narrative, and formatting | Dispatch no research child. | Return `blocked` to the parent; it may route a separately approved workflow outside this Plugin. Deep Research is not a substitute for the finished report. |
 | Mixed, missing, or ambiguous research deliverable | Dispatch no research child. | Return `blocked` to the parent to correct the contract before research starts. |
 
-A readable package-external Skill is not a bundled Plugin capability and must not be invoked by this child. Never run Deep Research beside an end-to-end research workflow such as `hv-analysis` over the same source scope. Calling the overlap "independent cross-checking," "orthogonal work," or separate file ownership does not make it non-duplicative; use fresh Sol to review the evidence instead.
+A readable package-external Skill is not a bundled Plugin capability and must not be invoked by this child. Never run Deep Research beside an end-to-end research workflow such as `hv-analysis` over the same source scope. Calling the overlap "independent cross-checking," "orthogonal work," or separate file ownership does not make it non-duplicative; use the selected platform evidence reviewer in a fresh context instead.
 
 ## Deep Research boundary
 

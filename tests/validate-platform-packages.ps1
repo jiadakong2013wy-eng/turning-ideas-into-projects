@@ -94,6 +94,12 @@ foreach ($artifactName in $artifactNames) {
     Assert-True ($checksumText -match "(?m)^$hash  $([regex]::Escape($artifactName))\r?$") "Checksum entry mismatch: $artifactName"
     $entries = Get-ZipEntryNames $artifactPath
     Assert-True ($entries.Count -gt 0) "ZIP is empty: $artifactName"
+    $usageEntries = @($entries | Where-Object { $_ -eq 'USAGE.md' -or $_ -match '^[^/]+/USAGE\.md$' })
+    Assert-True ($usageEntries.Count -eq 1) "ZIP must include one user guide: $artifactName"
+    if ($usageEntries.Count -eq 1) {
+        $usage = Get-ZipEntryText $artifactPath $usageEntries[0]
+        Assert-True ($usage -eq (Get-Content -LiteralPath (Join-Path $repoRoot 'README.md') -Raw -Encoding UTF8)) "ZIP user guide differs from source README: $artifactName"
+    }
     Assert-True (-not ($entries | Where-Object { $_ -match '(^|/)\.git(/|$)' })) "ZIP contains .git data: $artifactName"
     Assert-True (-not ($entries | Where-Object { $_ -match 'ACCEPTANCE\.md$|evidence/T5/final-clone' })) "ZIP contains protected user artifacts: $artifactName"
 }
@@ -104,7 +110,7 @@ if (Test-Path -LiteralPath $codexZip -PathType Leaf) {
     foreach ($required in @('.agents/plugins/marketplace.json','plugins/superpowers/.codex-plugin/plugin.json','plugins/mingkon-idea-to-project/.codex-plugin/plugin.json','scripts/install.ps1')) {
         Assert-True ($entries -contains $required) "Codex ZIP missing: $required"
     }
-    foreach ($required in @('plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/stage-receipts.md')) {
+    foreach ($required in @('plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/mingkon-idea-to-project/skills/turning-ideas-into-projects/references/stage-receipts.md','plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/references/model-routing.md')) {
         Assert-True ($entries -contains $required) "Codex lifecycle ZIP missing: $required"
     }
 }
@@ -122,7 +128,7 @@ if (Test-Path -LiteralPath $claudeZip -PathType Leaf) {
     Assert-True ($packagedPublicPlugin -and $packagedPublicPlugin.source -eq './plugins/turning-ideas-into-projects') 'Claude ZIP marketplace source must match its renamed public plugin directory.'
     Assert-True ($mainSkill -and $mainSkill.Contains('turning-ideas-into-projects:leader')) 'Claude generated Skill must use the public plugin namespace.'
     Assert-True (-not ($mainSkill -and $mainSkill.Contains('mingkon-idea-to-project:'))) 'Claude generated Skill leaks the internal Codex namespace.'
-    foreach ($required in @('plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/stage-receipts.md')) {
+    foreach ($required in @('plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/existing-project-upgrade.md','plugins/turning-ideas-into-projects/skills/turning-ideas-into-projects/references/stage-receipts.md','plugins/turning-ideas-into-projects/skills/orchestrating-multi-model-work/references/model-routing.md')) {
         Assert-True ($entries -contains $required) "Claude lifecycle ZIP missing: $required"
     }
 }
@@ -143,6 +149,7 @@ if (Test-Path -LiteralPath $workBuddyZip -PathType Leaf) {
     foreach ($required in @('skills/turning-ideas-into-projects/references/existing-project-upgrade.md','skills/turning-ideas-into-projects/references/stage-receipts.md')) {
         Assert-True ($entries -contains $required) "WorkBuddy lifecycle ZIP missing: $required"
     }
+    Assert-True ($entries -contains 'skills/orchestrating-multi-model-work/references/model-routing.md') 'WorkBuddy ZIP missing model-routing reference.'
 }
 
 $uniClawArchives = @(
@@ -160,7 +167,7 @@ $uniClawArchives = @(
     @{
         File = "orchestrating-multi-model-work-uniclaw-$releaseVersion.zip"
         Name = 'orchestrating-multi-model-work'
-        Required = @('references/platform-adapter.md','references/handoff-contract.md')
+        Required = @('references/platform-adapter.md','references/handoff-contract.md','references/model-routing.md')
     }
 )
 foreach ($expected in $uniClawArchives) {
@@ -201,6 +208,9 @@ foreach ($expected in $claudeDesktopArchives) {
         foreach ($required in @('references/existing-project-upgrade.md','references/stage-receipts.md')) {
             Assert-True ($entries -contains "$($expected.Name)/$required") "Claude Desktop lifecycle ZIP missing: $required"
         }
+    }
+    else {
+        Assert-True ($entries -contains "$($expected.Name)/references/model-routing.md") "Claude Desktop orchestration ZIP missing model-routing reference: $($expected.File)"
     }
 }
 

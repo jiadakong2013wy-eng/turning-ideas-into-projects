@@ -10,7 +10,7 @@ Read this before dependency, goal, child-task, model, Deep Research, or review c
 | Live phase execution | In Chat or Cowork, treat a phase as live only when the host exposes a stable identity and readable status. Otherwise preserve `proposed_not_started`. |
 | Conversation artifacts | Use selected conversation artifacts only when they can be exported, uploaded, or read back in the current context; unselected conversation memory is an unverified hypothesis. |
 | Independent review | Use a separately identifiable fresh Chat or Cowork context. A second answer in the implementation conversation is self-review. |
-| Model route | A requested or selected model is `model_requested`; record `model_actual` only when the run exposes it, otherwise record `unknown`. |
+| Model route | Use the shared selector. On Claude Pro or a standard seat, recommend Opus 5 for mainline/planning/research/review and Sonnet 5 for implementation. Fable 5/5.1 uses pay-as-you-go credits on these plans and requires explicit extra-cost authorization. On Max or a premium seat where Fable is included, it may handle the hardest mainline or fresh review. A requested or selected model is `model_requested`; record `model_actual` only when the run exposes it, otherwise record `unknown`. |
 | Deep Research | Treat research as evidence only when cited output and readable artifacts are available; otherwise use `external_handoff_required`. |
 
 When code execution or file creation is unavailable, keep the affected work proposed and provide a copy-ready contract or receipt rather than claiming execution. When a required value is not observable, preserve `unknown`, `external_handoff_required`, or `proposed_not_started` and stop the affected branch.

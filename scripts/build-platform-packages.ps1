@@ -173,6 +173,7 @@ function New-DeterministicZip {
 function Copy-ReleaseDocs {
     param([string]$Platform, [string]$Destination)
     Copy-Item -LiteralPath (Join-Path $repoRoot "docs/install-$Platform.md") -Destination (Join-Path $Destination 'README.md') -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination (Join-Path $Destination 'USAGE.md') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'LICENSE') -Destination (Join-Path $Destination 'LICENSE') -Force
     $licenseRoot = Join-Path $Destination 'third_party/licenses'
     New-Item -ItemType Directory -Path $licenseRoot -Force | Out-Null

@@ -103,6 +103,8 @@ $requiredFiles = @(
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/SKILL.md',
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/agents/openai.yaml',
     'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/references/handoff-contract.md',
+    'plugins/mingkon-idea-to-project/skills/orchestrating-multi-model-work/references/model-routing.md',
+    'tests/validate-model-routing.ps1',
     'plugins/mingkon-idea-to-project/skills/leader/SKILL.md',
     'plugins/mingkon-idea-to-project/skills/leader/references/anatomy.md',
     'plugins/mingkon-idea-to-project/skills/leader/references/style.md',
@@ -159,7 +161,7 @@ if (Test-Path -LiteralPath $multiModelPath -PathType Leaf) {
         'model_requested',
         'model_actual',
         'external_handoff_required',
-        'fresh Sol context',
+        'fresh platform-recommended reviewer context',
         'must not change product direction',
         'must not write central governance files'
     )) {
@@ -188,7 +190,7 @@ foreach ($ref in $qualifiedRefs) {
     if ($ref.Prefix -eq 'superpowers') {
         Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot "plugins/superpowers/skills/$($ref.Skill)/SKILL.md") -PathType Leaf) "Unbundled Superpowers Skill reference: $($ref.Skill)"
     }
-    elseif ($ref.Prefix -eq 'mingkon-idea-to-project') {
+    elseif ($ref.Prefix -in @('mingkon-idea-to-project', 'turning-ideas-into-projects')) {
         Assert-True ($ref.Skill -in @('leader', 'orchestrating-multi-model-work')) "Unexpected Mingkon Skill reference: $($ref.Skill)"
         Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot "plugins/mingkon-idea-to-project/skills/$($ref.Skill)/SKILL.md") -PathType Leaf) "Unbundled Mingkon Skill reference: $($ref.Skill)"
     }
@@ -214,6 +216,12 @@ if ($lock) {
 $trackedTextPaths = @(& git -C $repoRoot ls-files -- '*.md' '*.json' '*.yaml' '*.yml' '*.ps1')
 if ($LASTEXITCODE -ne 0) {
     throw 'Unable to enumerate tracked package files.'
+}
+
+$modelRoutingValidator = Join-Path $repoRoot 'tests/validate-model-routing.ps1'
+if (Test-Path -LiteralPath $modelRoutingValidator -PathType Leaf) {
+    & pwsh -NoProfile -File $modelRoutingValidator
+    Assert-True ($LASTEXITCODE -eq 0) 'Model routing validator failed.'
 }
 $textFiles = $trackedTextPaths | ForEach-Object {
     Get-Item -LiteralPath (Join-Path $repoRoot $_)
